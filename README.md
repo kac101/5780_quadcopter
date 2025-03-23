@@ -3,3 +3,4 @@
 
 List of Members
 Donggeon Kim
+Taehoon Kim
