@@ -5,3 +5,4 @@ List of Members
 Donggeon Kim
 Taehoon Kim
 Rudis Argueta
+Luke Stillings
