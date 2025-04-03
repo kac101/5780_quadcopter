@@ -1,71 +1,51 @@
-# Generated Cmake Pico project file
-
 cmake_minimum_required(VERSION 3.13)
 
+# Set project name and language
+project(drone C CXX ASM)
+
+# Set C standard and C++ standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Initialise pico_sdk from installed location
-# (note this can come from environment, CMake cache etc)
+# Set Pico board type (Pico W here)
+set(PICO_BOARD pico_w)
 
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.1.1)
-set(toolchainVersion RISCV_RPI_2_0_0_5)
-set(picotoolVersion 2.1.1)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
-
-# Pull in Raspberry Pi Pico SDK (must be before project)
+# Import Pico SDK
 include(pico_sdk_import.cmake)
 
-project(drone C CXX ASM)
-
-# Initialise the Raspberry Pi Pico SDK
+# Initialize the SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
+# Create executable from source file(s)
+add_executable(drone
+    drone.cpp
+)
 
-add_executable(drone drone.cpp )
-
-pico_set_program_name(drone "drone")
-pico_set_program_version(drone "0.1")
-
-# Generate PIO header
+# Generate PIO header if you're using PIO
 pico_generate_pio_header(drone ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
 
-# Modify the below lines to enable/disable output over UART/USB
+# Enable USB and UART stdio
 pico_enable_stdio_uart(drone 1)
 pico_enable_stdio_usb(drone 1)
 
-# Add the standard library to the build
-target_link_libraries(drone
-        pico_stdlib)
-
-# Add the standard include files to the build
+# Add include directories
 target_include_directories(drone PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}
 )
 
-# Add any user requested libraries
-target_link_libraries(drone 
-        hardware_spi
-        hardware_i2c
-        hardware_dma
-        hardware_pio
-        hardware_timer
-        hardware_clocks
-        pico_cyw43_arch_none
-        )
+# Link required libraries (THIS is the KEY PART!)
+target_link_libraries(drone
+    pico_stdlib
+    hardware_pwm
+    hardware_spi
+    hardware_i2c
+    hardware_dma
+    hardware_pio
+    hardware_timer
+    hardware_clocks
+    pico_cyw43_arch_none
+)
 
+# Create UF2 and binary files
 pico_add_extra_outputs(drone)
-
