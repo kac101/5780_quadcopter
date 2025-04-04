@@ -45,10 +45,7 @@ pico_enable_stdio_uart(pwmDrone 0)
 pico_enable_stdio_usb(pwmDrone 1)
 
 # Add the standard library to the build
-target_link_libraries(pwmDrone
-        pico_stdlib
-        hardware_pwm
-        )
+target_link_libraries(pwmDrone pico_stdlib )
 
 # Add the standard include files to the build
 target_include_directories(pwmDrone PRIVATE
@@ -58,6 +55,7 @@ target_include_directories(pwmDrone PRIVATE
 # Add any user requested libraries
 target_link_libraries(pwmDrone 
         pico_cyw43_arch_none
+        hardware_pwm
         )
 
 pico_add_extra_outputs(pwmDrone)
