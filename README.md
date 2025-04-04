@@ -1,8 +1,13 @@
-# 5780_quadcopter
-5780_mini_project_quadcopter
+# ECE 5780 Quadcopter
 
-List of Members
-Donggeon Kim
-Taehoon Kim
-Rudis Argueta
-Luke Stillings
+## Overview
+Mini-Project for quadcopter, using the Raspberry Pi Pico.
+
+## Team Members
+
+- **Taehoon Kim** 
+- **Rudis Argueta** 
+- **Luke Stillings** 
+- **Donggeon Kim**
+
+
