@@ -1,37 +1,36 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 
-#include <stdint.h>  // required for uint32_t
+#define PWM_PIN 10      // PWM output pin (GPIO 10)
+#define LED_PIN 25      // Onboard LED
 
-typedef uint32_t uint;
-#define PWM_PIN 6  // GPIO 6
-
-void setup_pwm(uint32_t pin) {
+void setup_pwm(uint32_t pin, uint32_t duty) {
     gpio_set_function(pin, GPIO_FUNC_PWM);
-    uint slice = pwm_gpio_to_slice_num(pin);
-    pwm_set_wrap(slice, 100);  // period
-    pwm_set_chan_level(slice, pwm_gpio_to_channel(pin), 0);
+    uint32_t slice = pwm_gpio_to_slice_num(pin);
+    uint32_t channel = pwm_gpio_to_channel(pin);
+    pwm_set_wrap(slice, 100);
+    pwm_set_chan_level(slice, channel, duty); // 100% = 100
     pwm_set_enabled(slice, true);
-}
-
-void set_pwm_duty(uint pin, float duty_percent) {
-    uint slice = pwm_gpio_to_slice_num(pin);
-    uint level = duty_percent / 100.0f * 100;
-    pwm_set_chan_level(slice, pwm_gpio_to_channel(pin), level);
 }
 
 int main() {
     stdio_init_all();
-    setup_pwm(PWM_PIN);
 
-    float brightness = 0;
-    float step = 1.0;
+    // Setup LED
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Setup PWM output
+    setup_pwm(PWM_PIN, 100); // 100% duty cycle
 
     while (true) {
-        set_pwm_duty(PWM_PIN, brightness);
-        brightness += step;
-        if (brightness >= 100 || brightness <= 0) step = -step;
-        sleep_ms(10);
+        gpio_put(LED_PIN, 1); // Turn LED ON
+        sleep_ms(1000);       // Wait 1 second
+        gpio_put(LED_PIN, 0); // Turn LED OFF
+        sleep_ms(1000);       // Wait 1 second
     }
+
+    return 0;
 }
