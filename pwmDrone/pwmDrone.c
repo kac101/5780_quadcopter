@@ -14,12 +14,14 @@ int main()
     }
 
     // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // setting the output of the LED to 1 which turns ON the LED
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
                                                    // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
 
     while (true)
     {
-        printf("Hello, world!\n");
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on
+        sleep_ms(1000);
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off
         sleep_ms(1000);
     }
 }
