@@ -9,7 +9,9 @@
 #define PWM_PIN1 1     // this corresponds to motor 2
 #define PWM_PIN2 2     // this corresponds to motor 3
 #define PWM_PIN3 3     // this corresponds to motor 4
-#define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not nesccary
+#define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
+
+int motor_num = 0;
 
 int main()
 {
@@ -70,8 +72,24 @@ int main()
     while (true)
     {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through drone cycle
+        for (motor_num = 0; motor_num < 4; motor_num++)
+        {
+            // using float because I am using % for duty cycle
+            for (float duty_cycle = 0.0; duty_cycle <= 0.75f; duty_cycle += 0.01)
+            {
+                uint16_t pwm_level = wrap * duty_cycle; // multiplying because we want to go from 0 to 75% duty cycle not full power
+                pwm_set_gpio_level(motor_num, pwm_level);
+                // wait for 100ms
+                sleep_ms(100);
+            }
 
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off
+            // resetting back down to 0% duty cycle
+            pwm_set_gpio_level(motor_num, 0);
+
+            // wait a bit for next motor
+            sleep_ms(1000);
+        }
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off, meaning all motors have been ran
         sleep_ms(1000);
     }
 }
