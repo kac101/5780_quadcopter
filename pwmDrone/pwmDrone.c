@@ -20,11 +20,11 @@
 #define PWM_PIN3 3     // this corresponds to motor 4
 #define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
 
-int motor_num = 0;
+int motor_num = 0; // counter for for loop, number of motors is 4
 
 int main()
 {
-    // initing all standar i/o
+    // initing all standard i/o
     stdio_init_all();
 
     // initializing the Wi-Fi chip
