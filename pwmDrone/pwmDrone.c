@@ -84,6 +84,7 @@ int main()
         for (motor_num = 0; motor_num < 4; motor_num++)
         {
             // using float because I am using % for duty cycle
+            // incrementally increasing speed by 0.01
             for (float duty_cycle = 0.0; duty_cycle <= 0.75f; duty_cycle += 0.01)
             {
                 uint16_t pwm_level = wrap * duty_cycle; // multiplying because we want to go from 0 to 75% duty cycle not full power
