@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/pwm.h"
 
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
@@ -37,9 +38,9 @@ int main()
     // each slice has a pair of pins that will have the same freq
     // grabbing slice numbers for each pin
     int slice_pin0 = pwm_gpio_to_slice_num(PWM_PIN0);
+    int slice_pin1 = pwm_gpio_to_slice_num(PWM_PIN1);
     int slice_pin2 = pwm_gpio_to_slice_num(PWM_PIN2);
     int slice_pin3 = pwm_gpio_to_slice_num(PWM_PIN3);
-    int slice_pin4 = pwm_gpio_to_slice_num(PWM_PIN4);
 
     // setting pins to pwm function
     gpio_set_function(PWM_PIN0, GPIO_FUNC_PWM); // setting function of gpio 0 to pwm
@@ -66,7 +67,7 @@ int main()
     pwm_set_enabled(slice_pin2, true);
     pwm_set_enabled(slice_pin3, true);
 
-        while (true)
+    while (true)
     {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through drone cycle
 
