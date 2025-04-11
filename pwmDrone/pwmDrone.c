@@ -44,7 +44,7 @@ int main()
     // each pin controls a mosfet that allows the motor to spin based on our duty cycle
     // wrap is the number we want to count up to, default sys clck is 150Mhz, 150Mhz info -
     // info is from 8.1.2.1 in the Raspberry Pi Pico RP2350 Datasheet, link above
-    uint32_t wrap = ((150000000 / PWM_FREQ) - 1); // clock divider to pwm_freq
+    uint32_t wrap = ((150000000 / PWM_FREQ) - 1);
 
     // each slice has a pair of pins that will have the same freq
     // grabbing slice numbers for each pin
