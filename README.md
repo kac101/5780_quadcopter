@@ -9,5 +9,3 @@ Mini-Project for quadcopter, using the Raspberry Pi Pico.
 - **Rudis Argueta** 
 - **Luke Stillings** 
 - **Donggeon Kim**
-
-
