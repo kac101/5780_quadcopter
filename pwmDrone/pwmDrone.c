@@ -3,6 +3,15 @@
 #include "pico/cyw43_arch.h"
 #include "hardware/pwm.h"
 
+/*
+    refreneces (used C SDK and hardware api for pwm functions and datasheets):
+        1. Raspberry Pi Pico 2 W  Datasheet: https://datasheets.raspberrypi.com/picow/pico-2-w-datasheet.pdf
+        2. RP2350 - https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf
+        3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html#group_hardware_pwm
+
+
+*/
+
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
 #define PWM_PIN0 0     // this corresponds to motor 1
