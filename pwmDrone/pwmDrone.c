@@ -66,7 +66,7 @@ int main()
     pwm_set_clkdiv(slice_pin3, 1.0f);
 
     // wrap -> highest number the counter will go up to before returning back down to 0
-    // info from hardware api - link abov
+    // info from hardware api - link above
     pwm_set_wrap(slice_pin0, wrap);
     pwm_set_wrap(slice_pin1, wrap);
     pwm_set_wrap(slice_pin2, wrap);
@@ -80,7 +80,7 @@ int main()
 
     while (true)
     {
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through drone cycle
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through motor cycle
         for (motor_num = 0; motor_num < 4; motor_num++)
         {
             // using float because I am using % for duty cycle
