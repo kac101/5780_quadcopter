@@ -1,7 +1,0 @@
-/mnt/f/capstone/build/pioasm/CMakeFiles/pioasm.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/edit_cache.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/rebuild_cache.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/list_install_components.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/install.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/install/local.dir
-/mnt/f/capstone/build/pioasm/CMakeFiles/install/strip.dir

@@ -1,5 +1,0 @@
-/mnt/f/capstone/build/_deps/picotool/picotool
-/mnt/f/capstone/build/_deps/picotool/picotoolTargets.cmake
-/mnt/f/capstone/build/_deps/picotool/picotoolTargets-release.cmake
-/mnt/f/capstone/build/_deps/picotool/picotoolConfig.cmake
-/mnt/f/capstone/build/_deps/picotool/picotoolConfigVersion.cmake
