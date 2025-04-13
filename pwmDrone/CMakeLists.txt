@@ -53,10 +53,11 @@ target_include_directories(pwmDrone PRIVATE
 )
 
 # Add any user requested libraries
-target_link_libraries(pwmDrone 
+target_link_libraries(pwmDrone
         pico_cyw43_arch_none
+        hardware_gpio
+        hardware_i2c
         hardware_pwm
         )
 
 pico_add_extra_outputs(pwmDrone)
-

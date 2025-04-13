@@ -1,16 +1,26 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/gpio.h"
+#include "hardware/i2c.h"
 #include "hardware/pwm.h"
 
 /*
     refreneces (used C SDK and hardware api for pwm functions and datasheets):
         1. Raspberry Pi Pico 2 W  Datasheet: https://datasheets.raspberrypi.com/picow/pico-2-w-datasheet.pdf
         2. RP2350 - https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf
-        3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html#group_hardware_pwm
-
-
+        3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html
+        4. MPU-6000 and MPU-6050 Product Specification - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
+        5. MPU-6000 and MPU-6050 Register Map and Descriptions - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
 */
+
+#define I2C i2c0 // i2c instance
+#define I2C_FREQ (400*1000)
+#define I2C_SDA 4 // i2c sda pin
+#define I2C_SCL 5 // i2c scl pin
+
+#define MPU6050 0x68 // mpu6050 i2c address
+#define MPU6050_REG_WHO_AM_I 0x75
 
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
@@ -27,6 +37,23 @@ int main()
     // initing all standard i/o
     stdio_init_all();
 
+    // initialize the i2c peripheral and use gpio pull-up
+    i2c_init(I2C, I2C_FREQ);
+    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_SDA);
+    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_SCL);
+
+    // check the mpu6050 who_am_i register
+    uint8_t reg = MPU6050_REG_WHO_AM_I;
+    uint8_t data;
+    i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
+    i2c_read_blocking(I2C, MPU6050, &data, 1, false);
+    if (data != MPU6050) {
+        printf("unexpected value in mpu6050 who_am_i register\n");
+        return -1;
+    }
+
     // initializing the Wi-Fi chip
     // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
 
@@ -36,6 +63,11 @@ int main()
         printf("Wi-Fi init failed\n"); // print statement if initializing the Wi-Fi chip fails
         return -1;
     }
+
+    // turn on the LED and stop here for now
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+    while (true)
+        ;
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
                                                    // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
