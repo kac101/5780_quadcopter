@@ -16,7 +16,7 @@ else()
     set(USERHOME $ENV{HOME})
 endif()
 set(sdkVersion 2.1.1)
-set(toolchainVersion RISCV_RPI_2_0_0_5)
+set(toolchainVersion 14_2_Rel1)
 set(picotoolVersion 2.1.1)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
@@ -57,6 +57,7 @@ target_link_libraries(pwmDrone
         pico_cyw43_arch_none
         hardware_gpio
         hardware_i2c
+        hardware_irq
         hardware_pwm
         )
 

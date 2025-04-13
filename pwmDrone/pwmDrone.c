@@ -3,6 +3,7 @@
 #include "pico/cyw43_arch.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
+#include "hardware/irq.h"
 #include "hardware/pwm.h"
 
 /*
@@ -18,6 +19,8 @@
 #define I2C_FREQ (400*1000)
 #define I2C_SDA 4 // i2c sda pin
 #define I2C_SCL 5 // i2c scl pin
+
+#define MPU6050_INT 6 // mpu6050 interrupt pin
 
 #define MPU6050 0x68 // mpu6050 i2c address
 #define MPU6050_REG_SELF_TEST_X 0x0d
@@ -53,6 +56,26 @@
 #define MPU6050_REG_FIFO_R_W 0x74
 #define MPU6050_REG_WHO_AM_I 0x75
 
+static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
+{
+    if (gpio == MPU6050_INT)
+    {
+        uint8_t reg = MPU6050_REG_ACCEL_XOUT_H;
+        uint8_t data[14];
+        // read measurement data, the mpu6050 automatically increments the register
+        i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
+        i2c_read_blocking(I2C, MPU6050, data, 14, false);
+        int16_t temp, accel[3], gyro[3];
+        temp = (int16_t)data[6]<<8 | data[7];
+        for (int i = 0; i < 3; ++i) {
+            accel[i] = (int16_t)data[i*2]<<8 | data[i*2+1];
+            gyro[i] = (int16_t)data[i*2+8]<<8 | data[i*2+9];
+        }
+        // print the raw measurement data
+        printf("t:%d ax:%d ay:%d az:%d gx:%d gy:%d gz:%d\n", temp, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]);
+    }
+}
+
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
 #define PWM_PIN0 0     // this corresponds to motor 1
@@ -75,6 +98,11 @@ int main()
     gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SCL);
 
+    // setup mpu6050 interrupt pin and enable gpio interrupts
+    gpio_init(MPU6050_INT);
+    gpio_set_dir(MPU6050_INT, GPIO_IN);
+    gpio_set_irq_enabled_with_callback(MPU6050_INT, GPIO_IRQ_EDGE_RISE, true, gpio_interrupt_handler);
+
     // check the mpu6050 who_am_i register
     uint8_t reg = MPU6050_REG_WHO_AM_I;
     uint8_t data;
@@ -85,14 +113,23 @@ int main()
         return -1;
     }
     uint8_t buffer[2];
+    buffer[0] = MPU6050_REG_PWR_MGMT_1;
+    buffer[1] = 0x01; // disable sleep mode, use gyroscope X axis as reference clock
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
+    buffer[0] = MPU6050_REG_CONFIG;
+    buffer[1] = 0x01; // set gyroscope 1kHz sample rate with filtering
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
     buffer[0] = MPU6050_REG_GYRO_CONFIG;
-    buffer[1] = 0; // set gryoscope full scale range +-250deg/s
+    buffer[1] = 0x00; // set gryoscope full scale range +-250deg/s
     i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
     buffer[0] = MPU6050_REG_ACCEL_CONFIG;
-    buffer[1]= 0; // set accelerometer full scale range +-2g
+    buffer[1]= 0x00; // set accelerometer full scale range +-2g
     i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_PWR_MGMT_1;
-    buffer[1] = 1; // disable sleep mode, use gyroscope X axis as reference clock
+    buffer[0] = MPU6050_REG_INT_PIN_CFG;
+    buffer[1] = 0x30; // set interrupt pin active high, push-pull, latch enable, read clear
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
+    buffer[0] = MPU6050_REG_INT_ENABLE;
+    buffer[1] = 0x01; // enable data ready interrupt
     i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
 
     // initializing the Wi-Fi chip
@@ -105,25 +142,12 @@ int main()
         return -1;
     }
 
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+
     while (true)
     {
-        uint8_t reg = MPU6050_REG_ACCEL_XOUT_H;
-        uint8_t data[14];
-        // read measurement data, the mpu6050 automatically increments the register
-        i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
-        i2c_read_blocking(I2C, MPU6050, data, 14, false);
-        int16_t temp, accel[3], gyro[3];
-        temp = (int16_t)data[6]<<8 | data[7];
-        for (int i = 0; i < 3; ++i) {
-            accel[i] = (int16_t)data[i*2]<<8 | data[i*2+1];
-            gyro[i] = (int16_t)data[i*2+8]<<8 | data[i*2+9];
-        }
-        // print the raw measurement data
-        printf("t:%d ax:%d ay:%d az:%d gx:%d gy:%d gz:%d\n", temp, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]);
-        // flash LED to know that it is working
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+        // sensor data is read in interrupt now
         sleep_ms(100);
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     }
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
