@@ -20,6 +20,7 @@
 #define I2C_SDA 4 // i2c sda pin
 #define I2C_SCL 5 // i2c scl pin
 
+#define MPU6050_I2C I2C // mpu6050 i2c instance
 #define MPU6050_INT 6 // mpu6050 interrupt pin
 
 #define MPU6050 0x68 // mpu6050 i2c address
@@ -56,23 +57,56 @@
 #define MPU6050_REG_FIFO_R_W 0x74
 #define MPU6050_REG_WHO_AM_I 0x75
 
+static void mpu6050_write(uint8_t reg, uint8_t data)
+{
+    uint8_t buffer[] = { reg, data };
+    i2c_write_blocking(MPU6050_I2C, MPU6050, buffer, 2, false);
+}
+
+static void mpu6050_read(uint8_t reg, uint8_t *data, size_t len)
+{
+    i2c_write_blocking(MPU6050_I2C, MPU6050, &reg, 1, true);
+    i2c_read_blocking(MPU6050_I2C, MPU6050, data, len, false);
+}
+
+static void mpu6050_get_measurement(int16_t *gyro)
+{
+    uint8_t gyro_raw[6];
+    mpu6050_read(MPU6050_REG_GYRO_XOUT_H, gyro_raw, 6);
+    gyro[0] = (int16_t)gyro_raw[0] << 8 | gyro_raw[1];
+    gyro[1] = (int16_t)gyro_raw[2] << 8 | gyro_raw[3];
+    gyro[2] = (int16_t)gyro_raw[4] << 8 | gyro_raw[5];
+}
+
+static void mpu6050_startup(void)
+{
+    // reset procedure (see datasheet)
+    mpu6050_write(MPU6050_REG_PWR_MGMT_1, 0x80); // device reset
+    sleep_ms(100);
+    mpu6050_write(MPU6050_REG_PWR_MGMT_1, 0x00); // disable sleep mode
+    sleep_ms(100);
+
+    // use gyroscope X axis as reference clock (recommended by datasheet)
+    mpu6050_write(MPU6050_REG_PWR_MGMT_1, 0x01);
+    // put accelerometer into standby mode
+    mpu6050_write(MPU6050_REG_PWR_MGMT_2, 0x38);
+    // set gyroscope 1kHz sample rate
+    mpu6050_write(MPU6050_REG_CONFIG, 0x01);
+    // set gryoscope full scale range +-250deg/s
+    mpu6050_write(MPU6050_REG_GYRO_CONFIG, 0x00);
+    // set interrupt pin active high
+    mpu6050_write(MPU6050_REG_INT_PIN_CFG, 0x30);
+    // enable data ready interrupt
+    mpu6050_write(MPU6050_REG_INT_ENABLE, 0x01);
+}
+
 static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
 {
     if (gpio == MPU6050_INT)
     {
-        uint8_t reg = MPU6050_REG_ACCEL_XOUT_H;
-        uint8_t data[14];
-        // read measurement data, the mpu6050 automatically increments the register
-        i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
-        i2c_read_blocking(I2C, MPU6050, data, 14, false);
-        int16_t temp, accel[3], gyro[3];
-        temp = (int16_t)data[6]<<8 | data[7];
-        for (int i = 0; i < 3; ++i) {
-            accel[i] = (int16_t)data[i*2]<<8 | data[i*2+1];
-            gyro[i] = (int16_t)data[i*2+8]<<8 | data[i*2+9];
-        }
-        // print the raw measurement data
-        printf("t:%d ax:%d ay:%d az:%d gx:%d gy:%d gz:%d\n", temp, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]);
+        int16_t gyro[3];
+        mpu6050_get_measurement(gyro);
+        printf("%d %d %d\n", gyro[0], gyro[1], gyro[2]);
     }
 }
 
@@ -103,34 +137,7 @@ int main()
     gpio_set_dir(MPU6050_INT, GPIO_IN);
     gpio_set_irq_enabled_with_callback(MPU6050_INT, GPIO_IRQ_EDGE_RISE, true, gpio_interrupt_handler);
 
-    // check the mpu6050 who_am_i register
-    uint8_t reg = MPU6050_REG_WHO_AM_I;
-    uint8_t data;
-    i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
-    i2c_read_blocking(I2C, MPU6050, &data, 1, false);
-    if (data != MPU6050) {
-        printf("unexpected value in mpu6050 who_am_i register\n");
-        return -1;
-    }
-    uint8_t buffer[2];
-    buffer[0] = MPU6050_REG_PWR_MGMT_1;
-    buffer[1] = 0x01; // disable sleep mode, use gyroscope X axis as reference clock
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_CONFIG;
-    buffer[1] = 0x01; // set gyroscope 1kHz sample rate with filtering
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_GYRO_CONFIG;
-    buffer[1] = 0x00; // set gryoscope full scale range +-250deg/s
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_ACCEL_CONFIG;
-    buffer[1]= 0x00; // set accelerometer full scale range +-2g
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_INT_PIN_CFG;
-    buffer[1] = 0x30; // set interrupt pin active high, push-pull, latch enable, read clear
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
-    buffer[0] = MPU6050_REG_INT_ENABLE;
-    buffer[1] = 0x01; // enable data ready interrupt
-    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
+    mpu6050_startup();
 
     // initializing the Wi-Fi chip
     // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
