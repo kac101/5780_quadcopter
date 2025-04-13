@@ -20,6 +20,37 @@
 #define I2C_SCL 5 // i2c scl pin
 
 #define MPU6050 0x68 // mpu6050 i2c address
+#define MPU6050_REG_SELF_TEST_X 0x0d
+#define MPU6050_REG_SELF_TEST_Y 0x0e
+#define MPU6050_REG_SELF_TEST_Z 0x0f
+#define MPU6050_REG_SELF_TEST_A 0x10
+#define MPU6050_REG_SMPRT_DIV 0x19
+#define MPU6050_REG_CONFIG 0x1a
+#define MPU6050_REG_GYRO_CONFIG 0x1b
+#define MPU6050_REG_ACCEL_CONFIG 0x1c
+#define MPU6050_REG_FIFO_EN 0x23
+#define MPU6050_REG_INT_PIN_CFG 0x37
+#define MPU6050_REG_INT_ENABLE 0x38
+#define MPU6050_REG_INT_STATUS 0x3a
+#define MPU6050_REG_ACCEL_XOUT_H 0x3b
+#define MPU6050_REG_ACCEL_XOUT_L 0x3c
+#define MPU6050_REG_ACCEL_YOUT_H 0x3d
+#define MPU6050_REG_ACCEL_YOUT_L 0x3e
+#define MPU6050_REG_ACCEL_ZOUT_H 0x3f
+#define MPU6050_REG_ACCEL_ZOUT_L 0x40
+#define MPU6050_REG_GYRO_XOUT_H 0x43
+#define MPU6050_REG_GYRO_XOUT_L 0x44
+#define MPU6050_REG_GYRO_YOUT_H 0x45
+#define MPU6050_REG_GYRO_YOUT_L 0x46
+#define MPU6050_REG_GYRO_ZOUT_H 0x47
+#define MPU6050_REG_GYRO_ZOUT_L 0x48
+#define MPU6050_REG_SIGNAL_PATH_RESET 0x68
+#define MPU6050_REG_USER_CTRL 0x6a
+#define MPU6050_REG_PWR_MGMT_1 0x6b
+#define MPU6050_REG_PWR_MGMT_2 0x6c
+#define MPU6050_REG_FIFO_COUNTH 0x72
+#define MPU6050_REG_FIFO_COUNTL 0x73
+#define MPU6050_REG_FIFO_R_W 0x74
 #define MPU6050_REG_WHO_AM_I 0x75
 
 // pico has 24 pwm channels -> datasheet pg. 4
@@ -53,6 +84,16 @@ int main()
         printf("unexpected value in mpu6050 who_am_i register\n");
         return -1;
     }
+    uint8_t buffer[2];
+    buffer[0] = MPU6050_REG_GYRO_CONFIG;
+    buffer[1] = 0; // set gryoscope full scale range +-250deg/s
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
+    buffer[0] = MPU6050_REG_ACCEL_CONFIG;
+    buffer[1]= 0; // set accelerometer full scale range +-2g
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
+    buffer[0] = MPU6050_REG_PWR_MGMT_1;
+    buffer[1] = 1; // disable sleep mode, use gyroscope X axis as reference clock
+    i2c_write_blocking(I2C, MPU6050, buffer, 2, false);
 
     // initializing the Wi-Fi chip
     // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
@@ -64,10 +105,26 @@ int main()
         return -1;
     }
 
-    // turn on the LED and stop here for now
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     while (true)
-        ;
+    {
+        uint8_t reg = MPU6050_REG_ACCEL_XOUT_H;
+        uint8_t data[14];
+        // read measurement data, the mpu6050 automatically increments the register
+        i2c_write_blocking(I2C, MPU6050, &reg, 1, true);
+        i2c_read_blocking(I2C, MPU6050, data, 14, false);
+        int16_t temp, accel[3], gyro[3];
+        temp = (int16_t)data[6]<<8 | data[7];
+        for (int i = 0; i < 3; ++i) {
+            accel[i] = (int16_t)data[i*2]<<8 | data[i*2+1];
+            gyro[i] = (int16_t)data[i*2+8]<<8 | data[i*2+9];
+        }
+        // print the raw measurement data
+        printf("t:%d ax:%d ay:%d az:%d gx:%d gy:%d gz:%d\n", temp, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]);
+        // flash LED to know that it is working
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+        sleep_ms(100);
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+    }
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
                                                    // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
