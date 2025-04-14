@@ -20,42 +20,17 @@
 #define I2C_SDA 4 // i2c sda pin
 #define I2C_SCL 5 // i2c scl pin
 
-#define MPU6050_I2C I2C // mpu6050 i2c instance
 #define MPU6050_INT 6 // mpu6050 interrupt pin
-
+#define MPU6050_I2C I2C // mpu6050 i2c instance
 #define MPU6050 0x68 // mpu6050 i2c address
-#define MPU6050_REG_SELF_TEST_X 0x0d
-#define MPU6050_REG_SELF_TEST_Y 0x0e
-#define MPU6050_REG_SELF_TEST_Z 0x0f
-#define MPU6050_REG_SELF_TEST_A 0x10
-#define MPU6050_REG_SMPRT_DIV 0x19
+// mpu6050 registers, see the datasheet for a complete list
 #define MPU6050_REG_CONFIG 0x1a
 #define MPU6050_REG_GYRO_CONFIG 0x1b
-#define MPU6050_REG_ACCEL_CONFIG 0x1c
-#define MPU6050_REG_FIFO_EN 0x23
 #define MPU6050_REG_INT_PIN_CFG 0x37
 #define MPU6050_REG_INT_ENABLE 0x38
-#define MPU6050_REG_INT_STATUS 0x3a
-#define MPU6050_REG_ACCEL_XOUT_H 0x3b
-#define MPU6050_REG_ACCEL_XOUT_L 0x3c
-#define MPU6050_REG_ACCEL_YOUT_H 0x3d
-#define MPU6050_REG_ACCEL_YOUT_L 0x3e
-#define MPU6050_REG_ACCEL_ZOUT_H 0x3f
-#define MPU6050_REG_ACCEL_ZOUT_L 0x40
 #define MPU6050_REG_GYRO_XOUT_H 0x43
-#define MPU6050_REG_GYRO_XOUT_L 0x44
-#define MPU6050_REG_GYRO_YOUT_H 0x45
-#define MPU6050_REG_GYRO_YOUT_L 0x46
-#define MPU6050_REG_GYRO_ZOUT_H 0x47
-#define MPU6050_REG_GYRO_ZOUT_L 0x48
-#define MPU6050_REG_SIGNAL_PATH_RESET 0x68
-#define MPU6050_REG_USER_CTRL 0x6a
 #define MPU6050_REG_PWR_MGMT_1 0x6b
 #define MPU6050_REG_PWR_MGMT_2 0x6c
-#define MPU6050_REG_FIFO_COUNTH 0x72
-#define MPU6050_REG_FIFO_COUNTL 0x73
-#define MPU6050_REG_FIFO_R_W 0x74
-#define MPU6050_REG_WHO_AM_I 0x75
 
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
