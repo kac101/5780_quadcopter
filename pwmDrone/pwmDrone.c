@@ -86,6 +86,11 @@ static int ready;
 static int32_t gyro_calibration_sum[3];
 static int16_t gryo_error[3];
 
+static float t;
+static float x;
+static float y;
+static float z;
+
 static void start_calibration(void)
 {
     calibration_count = CALIBRATION_SAMPLES;
@@ -118,6 +123,12 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
 
                 // the system is ready after at least one calibration
                 ready = 1;
+
+                // reset time and orientation
+                t = 0;
+                x = 0;
+                y = 0;
+                z = 0;
             }
         }
         else if (ready)
@@ -127,8 +138,7 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
             gyro[1] -= gryo_error[1];
             gyro[2] -= gryo_error[2];
 
-            // convert raw measurements into deg/s and estimate absolute orientation
-            static float t, x, y, z;
+            // convert raw measurements into deg/s and update absolute orientation
             t += 1/1000.0f;
             x += gyro[0]/131000.0f;
             y += gyro[1]/131000.0f;
