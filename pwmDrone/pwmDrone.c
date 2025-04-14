@@ -160,6 +160,16 @@ int main()
     // initing all standard i/o
     stdio_init_all();
 
+    // initializing the Wi-Fi chip
+    // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
+
+    if (cyw43_arch_init())
+    {
+        // default code from PICO
+        printf("Wi-Fi init failed\n"); // print statement if initializing the Wi-Fi chip fails
+        return -1;
+    }
+
     // initialize the i2c peripheral and use gpio pull-up
     i2c_init(I2C, I2C_FREQ);
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -171,32 +181,20 @@ int main()
     gpio_init(MPU6050_INT);
     gpio_set_irq_enabled_with_callback(MPU6050_INT, GPIO_IRQ_EDGE_RISE, true, gpio_interrupt_handler);
 
-    // wait for start while testing
-    while (getchar() != 's')
-    {
-        sleep_ms(100);
-    }
-
     // startup the mpu6050 and start calibration
     mpu6050_startup();
     mpu6050_enable_interrupts();
     start_calibration();
 
-    // initializing the Wi-Fi chip
-    // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
-
-    if (cyw43_arch_init())
-    {
-        // default code from PICO
-        printf("Wi-Fi init failed\n"); // print statement if initializing the Wi-Fi chip fails
-        return -1;
-    }
-
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-
+    // temporary loop for testing
+    // the gyro measurements are read and printed inside of the interrupt
     while (true)
     {
-        // sensor data is read in interrupt now
+        if (getchar() == 'c')
+        {
+            start_calibration();
+        }
+
         sleep_ms(100);
     }
 
