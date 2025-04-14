@@ -94,19 +94,79 @@ static void mpu6050_startup(void)
     mpu6050_write(MPU6050_REG_CONFIG, 0x01);
     // set gryoscope full scale range +-250deg/s
     mpu6050_write(MPU6050_REG_GYRO_CONFIG, 0x00);
-    // set interrupt pin active high
+}
+
+static void mpu6050_enable_interrupts(void)
+{
+    // set interrupt pin active high, push-pull
     mpu6050_write(MPU6050_REG_INT_PIN_CFG, 0x30);
     // enable data ready interrupt
     mpu6050_write(MPU6050_REG_INT_ENABLE, 0x01);
+}
+
+#define CALIBRATION_SAMPLES 1000 // number of samples to average for calibration
+
+static int calibration_count;
+static int ready;
+static int32_t gyro_calibration_sum[3];
+static int16_t gryo_error[3];
+
+static void start_calibration(void)
+{
+    calibration_count = CALIBRATION_SAMPLES;
+    memset(gyro_calibration_sum, 0, sizeof gyro_calibration_sum);
 }
 
 static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
 {
     if (gpio == MPU6050_INT)
     {
+        // mpu6050 interrupt is cleared by read
         int16_t gyro[3];
         mpu6050_get_measurement(gyro);
-        printf("%d %d %d\n", gyro[0], gyro[1], gyro[2]);
+
+        if (calibration_count > 0)
+        {
+            // system is calibrating
+            // during calibration, the system is assumed to be holding still
+            // average error offset is calculated
+            gyro_calibration_sum[0] += gyro[0];
+            gyro_calibration_sum[1] += gyro[1];
+            gyro_calibration_sum[2] += gyro[2];
+
+            if (--calibration_count <= 0)
+            {
+                // calibration is complete, take the average
+                gryo_error[0] = gyro_calibration_sum[0] / CALIBRATION_SAMPLES;
+                gryo_error[1] = gyro_calibration_sum[1] / CALIBRATION_SAMPLES;
+                gryo_error[2] = gyro_calibration_sum[2] / CALIBRATION_SAMPLES;
+
+                // the system is ready after at least one calibration
+                ready = 1;
+            }
+        }
+        else if (ready)
+        {
+            // remove the error offset from the measurements
+            gyro[0] -= gryo_error[0];
+            gyro[1] -= gryo_error[1];
+            gyro[2] -= gryo_error[2];
+
+            // convert raw measurements into deg/s and estimate absolute orientation
+            static float t, x, y, z;
+            t += 1/1000.0f;
+            x += gyro[0]/131000.0f;
+            y += gyro[1]/131000.0f;
+            z += gyro[2]/131000.0f;
+
+            // print current orientation every 100ms
+            static int count;
+            if (++count > 100)
+            {
+                printf("%7.3fs %8.3fdeg %8.3fdeg %8.3fdeg\n", t, x, y, z);
+                count = 0;
+            }
+        }
     }
 }
 
@@ -134,10 +194,18 @@ int main()
 
     // setup mpu6050 interrupt pin and enable gpio interrupts
     gpio_init(MPU6050_INT);
-    gpio_set_dir(MPU6050_INT, GPIO_IN);
     gpio_set_irq_enabled_with_callback(MPU6050_INT, GPIO_IRQ_EDGE_RISE, true, gpio_interrupt_handler);
 
+    // wait for start while testing
+    while (getchar() != 's')
+    {
+        sleep_ms(100);
+    }
+
+    // startup the mpu6050 and start calibration
     mpu6050_startup();
+    mpu6050_enable_interrupts();
+    start_calibration();
 
     // initializing the Wi-Fi chip
     // onboard LED is connected to the Wi-Fi/Bluetooth chip so we must access this chip to enable the onboard LED
