@@ -5,6 +5,7 @@
 #include "hardware/i2c.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
+#include "hardware/adc.h"
 
 /*
     refreneces (used C SDK and hardware api for pwm functions and datasheets):
@@ -31,6 +32,10 @@
 #define MPU6050_REG_GYRO_XOUT_H 0x43
 #define MPU6050_REG_PWR_MGMT_1 0x6b
 #define MPU6050_REG_PWR_MGMT_2 0x6c
+
+#define VOLTAGE_INPUT_PIN 26     // GPIO 26 for ADC0
+#define VOLTAGE_OUTPUT_PIN 5     // GPIO 5 for digital output
+
 
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
@@ -272,5 +277,32 @@ int main()
         }
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off, meaning all motors have been ran
         sleep_ms(1000);
+    }
+}
+
+void power() {
+    // initialize adc hardware
+    adc_init();
+
+    // set gpio 26 as adc input (adc0)
+    adc_gpio_init(VOLTAGE_INPUT_PIN);
+    adc_select_input(0);  // adc channel 0 = gpio 26
+
+    // set gpio 5 as digital output
+    gpio_init(VOLTAGE_OUTPUT_PIN);
+    gpio_set_dir(VOLTAGE_OUTPUT_PIN, GPIO_OUT);
+
+    // read raw 12-bit adc value (0 to 4095)
+    uint16_t raw = adc_read();
+
+    // convert to actual voltage (0.0 to 3.3v)
+    float voltage = (raw * 3.3f) / 4095.0f;
+    printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", voltage);
+
+    // if voltage is higher than 0.05v, turn gpio 5 on
+    if (voltage >= 0.05f) {
+        gpio_put(VOLTAGE_OUTPUT_PIN, 1);  // output high (3.3v)
+    } else {
+        gpio_put(VOLTAGE_OUTPUT_PIN, 0);  // output low (0v)
     }
 }
