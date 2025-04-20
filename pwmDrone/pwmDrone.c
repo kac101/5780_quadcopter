@@ -17,13 +17,13 @@
 */
 
 #define I2C i2c0 // i2c instance
-#define I2C_FREQ (400*1000)
+#define I2C_FREQ (400 * 1000)
 #define I2C_SDA 4 // i2c sda pin
 #define I2C_SCL 5 // i2c scl pin
 
-#define MPU6050_INT 6 // mpu6050 interrupt pin
+#define MPU6050_INT 6   // mpu6050 interrupt pin
 #define MPU6050_I2C I2C // mpu6050 i2c instance
-#define MPU6050 0x68 // mpu6050 i2c address
+#define MPU6050 0x68    // mpu6050 i2c address
 // mpu6050 registers, see the datasheet for a complete list
 #define MPU6050_REG_CONFIG 0x1a
 #define MPU6050_REG_GYRO_CONFIG 0x1b
@@ -33,13 +33,12 @@
 #define MPU6050_REG_PWR_MGMT_1 0x6b
 #define MPU6050_REG_PWR_MGMT_2 0x6c
 
-#define VOLTAGE_INPUT_PIN 26     // GPIO 26 for ADC0
-#define VOLTAGE_OUTPUT_PIN 5     // GPIO 5 for digital output
-
+#define VOLTAGE_INPUT_PIN 26 // GPIO 26 for ADC0
+#define VOLTAGE_OUTPUT_PIN 5 // GPIO 5 for digital output
 
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
-    uint8_t buffer[] = { reg, data };
+    uint8_t buffer[] = {reg, data};
     i2c_write_blocking(MPU6050_I2C, MPU6050, buffer, 2, false);
 }
 
@@ -144,10 +143,10 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
             gyro[2] -= gryo_error[2];
 
             // convert raw measurements into deg/s and update absolute orientation
-            t += 1/1000.0f;
-            x += gyro[0]/131000.0f;
-            y += gyro[1]/131000.0f;
-            z += gyro[2]/131000.0f;
+            t += 1 / 1000.0f;
+            x += gyro[0] / 131000.0f;
+            y += gyro[1] / 131000.0f;
+            z += gyro[2] / 131000.0f;
 
             // print current orientation every 100ms
             static int count;
@@ -168,7 +167,46 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
 #define PWM_PIN3 3     // this corresponds to motor 4
 #define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
 
-int motor_num = 0; // counter for for loop, number of motors is 4
+void pwmSetUp(void)
+{
+    // set up for all four pwm, four pins will be used for pins 0-3
+    // each pin controls a mosfet that allows the motor to spin based on our duty cycle
+    // wrap is the number we want to count up to, default sys clck is 150Mhz, 150Mhz info -
+    // info is from 8.1.2.1 in the Raspberry Pi Pico RP2350 Datasheet, link above
+    uint32_t wrap = ((150000000 / PWM_FREQ) - 1);
+
+    // each slice has a pair of pins that will have the same freq
+    // grabbing slice numbers for each pin
+    int slice_pin0 = pwm_gpio_to_slice_num(PWM_PIN0);
+    int slice_pin1 = pwm_gpio_to_slice_num(PWM_PIN1);
+    int slice_pin2 = pwm_gpio_to_slice_num(PWM_PIN2);
+    int slice_pin3 = pwm_gpio_to_slice_num(PWM_PIN3);
+
+    // setting pins to pwm function
+    gpio_set_function(PWM_PIN0, GPIO_FUNC_PWM); // setting function of gpio 0 to pwm
+    gpio_set_function(PWM_PIN1, GPIO_FUNC_PWM); // setting function of gpio 1 to pwm
+    gpio_set_function(PWM_PIN2, GPIO_FUNC_PWM); // setting function of gpio 2 to pwm
+    gpio_set_function(PWM_PIN3, GPIO_FUNC_PWM); // setting function of gpio 3 to pwm
+
+    // setting up clk dividers for pin, dont need to divide the clock up really
+    pwm_set_clkdiv(slice_pin0, 1.0f);
+    pwm_set_clkdiv(slice_pin1, 1.0f);
+    pwm_set_clkdiv(slice_pin2, 1.0f);
+    pwm_set_clkdiv(slice_pin3, 1.0f);
+
+    // wrap -> highest number the counter will go up to before returning back down to 0
+    // info from hardware api - link above
+    pwm_set_wrap(slice_pin0, wrap);
+    pwm_set_wrap(slice_pin1, wrap);
+    pwm_set_wrap(slice_pin2, wrap);
+    pwm_set_wrap(slice_pin3, wrap);
+
+    // enabling all the pins
+    pwm_set_enabled(slice_pin0, true);
+    pwm_set_enabled(slice_pin1, true);
+    pwm_set_enabled(slice_pin2, true);
+    pwm_set_enabled(slice_pin3, true);
+}
 
 int main()
 {
@@ -203,6 +241,7 @@ int main()
 
     // temporary loop for testing
     // the gyro measurements are read and printed inside of the interrupt
+    /*
     while (true)
     {
         if (getchar() == 'c')
@@ -211,82 +250,27 @@ int main()
         }
 
         sleep_ms(100);
-    }
+    } */
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
                                                    // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
 
-    // set up for all four pwm, four pins will be used for pins 0-3
-    // each pin controls a mosfet that allows the motor to spin based on our duty cycle
-    // wrap is the number we want to count up to, default sys clck is 150Mhz, 150Mhz info -
-    // info is from 8.1.2.1 in the Raspberry Pi Pico RP2350 Datasheet, link above
-    uint32_t wrap = ((150000000 / PWM_FREQ) - 1);
-
-    // each slice has a pair of pins that will have the same freq
-    // grabbing slice numbers for each pin
-    int slice_pin0 = pwm_gpio_to_slice_num(PWM_PIN0);
-    int slice_pin1 = pwm_gpio_to_slice_num(PWM_PIN1);
-    int slice_pin2 = pwm_gpio_to_slice_num(PWM_PIN2);
-    int slice_pin3 = pwm_gpio_to_slice_num(PWM_PIN3);
-
-    // setting pins to pwm function
-    gpio_set_function(PWM_PIN0, GPIO_FUNC_PWM); // setting function of gpio 0 to pwm
-    gpio_set_function(PWM_PIN1, GPIO_FUNC_PWM); // setting function of gpio 1 to pwm
-    gpio_set_function(PWM_PIN2, GPIO_FUNC_PWM); // setting function of gpio 2 to pwm
-    gpio_set_function(PWM_PIN3, GPIO_FUNC_PWM); // setting function of gpio 3 to pwm
-
-    // setting up clk dividers for pin, dont need to divide the clock up really
-    pwm_set_clkdiv(slice_pin0, 1.0f);
-    pwm_set_clkdiv(slice_pin1, 1.0f);
-    pwm_set_clkdiv(slice_pin2, 1.0f);
-    pwm_set_clkdiv(slice_pin3, 1.0f);
-
-    // wrap -> highest number the counter will go up to before returning back down to 0
-    // info from hardware api - link above
-    pwm_set_wrap(slice_pin0, wrap);
-    pwm_set_wrap(slice_pin1, wrap);
-    pwm_set_wrap(slice_pin2, wrap);
-    pwm_set_wrap(slice_pin2, wrap);
-
-    // enabling all the pins
-    pwm_set_enabled(slice_pin0, true);
-    pwm_set_enabled(slice_pin1, true);
-    pwm_set_enabled(slice_pin2, true);
-    pwm_set_enabled(slice_pin3, true);
-
     while (true)
     {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through motor cycle
-        for (motor_num = 0; motor_num < 4; motor_num++)
-        {
-            // using float because I am using % for duty cycle
-            // incrementally increasing speed by 0.01
-            for (float duty_cycle = 0.0; duty_cycle <= 0.75f; duty_cycle += 0.01)
-            {
-                uint16_t pwm_level = wrap * duty_cycle; // multiplying because we want to go from 0 to 75% duty cycle not full power
-                pwm_set_gpio_level(motor_num, pwm_level);
-                // wait for 100ms
-                sleep_ms(100);
-            }
-
-            // resetting back down to 0% duty cycle
-            pwm_set_gpio_level(motor_num, 0);
-
-            // wait a bit for next motor
-            sleep_ms(1000);
-        }
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off, meaning all motors have been ran
         sleep_ms(1000);
     }
 }
 
-void power() {
+void power()
+{
     // initialize adc hardware
     adc_init();
 
     // set gpio 26 as adc input (adc0)
     adc_gpio_init(VOLTAGE_INPUT_PIN);
-    adc_select_input(0);  // adc channel 0 = gpio 26
+    adc_select_input(0); // adc channel 0 = gpio 26
 
     // set gpio 5 as digital output
     gpio_init(VOLTAGE_OUTPUT_PIN);
@@ -300,9 +284,12 @@ void power() {
     printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", voltage);
 
     // if voltage is higher than 0.05v, turn gpio 5 on
-    if (voltage >= 0.05f) {
-        gpio_put(VOLTAGE_OUTPUT_PIN, 1);  // output high (3.3v)
-    } else {
-        gpio_put(VOLTAGE_OUTPUT_PIN, 0);  // output low (0v)
+    if (voltage >= 0.05f)
+    {
+        gpio_put(VOLTAGE_OUTPUT_PIN, 1); // output high (3.3v)
+    }
+    else
+    {
+        gpio_put(VOLTAGE_OUTPUT_PIN, 0); // output low (0v)
     }
 }
