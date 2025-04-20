@@ -223,6 +223,9 @@ int main()
         return -1;
     }
 
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
+    // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
+
     // initialize the i2c peripheral and use gpio pull-up
     i2c_init(I2C, I2C_FREQ);
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -252,8 +255,7 @@ int main()
         sleep_ms(100);
     } */
 
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // setting the output of the LED to off
-                                                   // CYW43_WL_GPIO_LED_PIN from pic2_w.h file
+    pwmSetUp(); // setting up all pwm signals
 
     while (true)
     {
