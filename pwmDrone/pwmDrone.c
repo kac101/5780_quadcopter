@@ -52,9 +52,9 @@ static int32_t gyro_calibration_sum[3];
 static int16_t gryo_error[3];
 
 static float t;
-static float x;
-static float y;
-static float z;
+static float x; // roll
+static float y; // pitch
+static float z; // yaw
 
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
