@@ -36,6 +36,26 @@
 #define VOLTAGE_INPUT_PIN 26 // GPIO 26 for ADC0
 #define VOLTAGE_OUTPUT_PIN 5 // GPIO 5 for digital output
 
+#define CALIBRATION_SAMPLES 1000 // number of samples to average for calibration
+
+// pico has 24 pwm channels -> datasheet pg. 4
+// using pins 0 - 3 to control the mosfets
+#define PWM_PIN0 0     // this corresponds to motor 1
+#define PWM_PIN1 1     // this corresponds to motor 2
+#define PWM_PIN2 2     // this corresponds to motor 3
+#define PWM_PIN3 3     // this corresponds to motor 4
+#define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
+
+static int calibration_count;
+static int ready;
+static int32_t gyro_calibration_sum[3];
+static int16_t gryo_error[3];
+
+static float t;
+static float x;
+static float y;
+static float z;
+
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
     uint8_t buffer[] = {reg, data};
@@ -82,18 +102,6 @@ static void mpu6050_enable_interrupts(void)
     // enable data ready interrupt
     mpu6050_write(MPU6050_REG_INT_ENABLE, 0x01);
 }
-
-#define CALIBRATION_SAMPLES 1000 // number of samples to average for calibration
-
-static int calibration_count;
-static int ready;
-static int32_t gyro_calibration_sum[3];
-static int16_t gryo_error[3];
-
-static float t;
-static float x;
-static float y;
-static float z;
 
 static void start_calibration(void)
 {
@@ -158,14 +166,6 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
         }
     }
 }
-
-// pico has 24 pwm channels -> datasheet pg. 4
-// using pins 0 - 3 to control the mosfets
-#define PWM_PIN0 0     // this corresponds to motor 1
-#define PWM_PIN1 1     // this corresponds to motor 2
-#define PWM_PIN2 2     // this corresponds to motor 3
-#define PWM_PIN3 3     // this corresponds to motor 4
-#define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
 
 void pwmSetUp(void)
 {
