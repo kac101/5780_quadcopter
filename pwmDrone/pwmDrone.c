@@ -40,11 +40,11 @@
 
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
-#define PWM_PIN0 0     // this corresponds to motor 1
-#define PWM_PIN1 1     // this corresponds to motor 2
-#define PWM_PIN2 2     // this corresponds to motor 3
-#define PWM_PIN3 3     // this corresponds to motor 4
-#define PWM_FREQ 20000 // 20kHz freq for motor control, I believe prof said this is a good one to use anything beyond this is not necessary
+#define PWM_PIN0 0      // this corresponds to motor 1
+#define PWM_PIN1 1      // this corresponds to motor 2
+#define PWM_PIN2 2      // this corresponds to motor 3
+#define PWM_PIN3 3      // this corresponds to motor 4
+#define PWM_FREQ 480000 // 48KHz for drone motors
 
 static int calibration_count;
 static int ready;
