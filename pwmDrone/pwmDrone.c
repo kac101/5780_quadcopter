@@ -72,6 +72,19 @@ static float prev_pitch_error = 0.0f;
 static float roll_integral = 0.0f;
 static float pitch_integral = 0.0f;
 
+static float clamp(float value, float min, float max)
+{
+    if (val < min)
+    {
+        return min;
+    }
+    if (val > max)
+    {
+        return max;
+    }
+    return value;
+}
+
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
     uint8_t buffer[] = {reg, data};
