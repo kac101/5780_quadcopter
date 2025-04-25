@@ -14,6 +14,7 @@
         3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html
         4. MPU-6000 and MPU-6050 Product Specification - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
         5. MPU-6000 and MPU-6050 Register Map and Descriptions - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
+        6. https://www.youtube.com/watch?v=GK1t8YIvGM8&t=1s
 */
 
 #define I2C i2c1 // i2c instance
@@ -250,7 +251,7 @@ void pwmSetUp(void)
 
 static void pid_control(void)
 {
-    // all PID code is similar from video from ECE 3610 and ECE 5780
+    // all PID code is similar from video from ECE 3610: MATLAB Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover?
     // both classes had sections on PID
     // error portion of PID
     float roll_error = ROLL_SETPOINT - roll_rate;
