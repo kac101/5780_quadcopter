@@ -36,5 +36,5 @@ A fully realized quadcopter platform built around a Raspberry Pi Pico 2W, powere
 ### Milestone 3  
 - Integrated MPU6050 over I²C with 1 kHz sampling and drift calibration  
 - Implemented ADC-based battery monitoring (accounted for resolution/noise)  
-- Conducted full system flight test → **Stable, controlled hover and maneuvers achieved**
+- Conducted full system flight test
 
