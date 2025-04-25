@@ -268,6 +268,7 @@ void power()
 
     // convert to actual voltage (0.0 to 3.3v)
     float voltage = (raw * 3.3f) / 4095.0f;
+    float actual_bat_voltage = voltage * BAT_RATIO_VOLT_DIV;
 
-    printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", voltage);
+    printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", actual_bat_voltage);
 }
