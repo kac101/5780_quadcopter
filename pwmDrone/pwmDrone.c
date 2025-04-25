@@ -42,18 +42,25 @@
 
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
-#define PWM_PIN0 6      // this corresponds to motor 1, front left
-#define PWM_PIN1 7      // this corresponds to motor 2, front right
-#define PWM_PIN2 8      // this corresponds to motor 3, back right
-#define PWM_PIN3 9      // this corresponds to motor 4, back left
+#define PWM_PIN0 6      // this corresponds to motor 1 on pcb
+#define PWM_PIN1 7      // this corresponds to motor 2 on pcb
+#define PWM_PIN2 8      // this corresponds to motor 3 on pcb
+#define PWM_PIN3 9      // this corresponds to motor 4 on pcb
 #define PWM_FREQ 480000 // 48KHz for drone motors
 
-// these are the desired orentation we want the drone, we want no pitch and no roll, just want it to hover
+// the orientation is based on the usb being the back of the drone
+// the pwm pins are soldered in a different order due to the motor driver pcb board
+#define MOTOR_FRONT_LEFT PWM_PIN2
+#define MOTOR_FRONT_RIGHT PWM_PIN3
+#define MOTOR_BACK_RIGHT PWM_PIN0
+#define MOTOR_BACK_LEFT PWM_PIN1
+
+// these are the desired amount of change in roll and pitch we want the drone, we want no pitch and no roll, just want it to hover
 #define ROLL_SETPOINT 0.0f
 #define PITCH_SETPOINT 0.0f
 
 static int calibration_count;
-static int ready;
+static int ready = 0;
 static int32_t gyro_calibration_sum[3];
 static int16_t gryo_error[3];
 
@@ -63,22 +70,30 @@ static float y; // pitch
 static float z; // yaw
 
 // values to adjust for PID control
-volatile float Kp = 0.0f;
-volatile float Ki = 0.0f;
-volatile float Kd = 0.0f;
+volatile float Kp = 1.40f;
+volatile float Ki = 0.005f;
+volatile float Kd = 0.00f;
 
+static uint32_t pwm_wrap; // wrap for counter
+
+// variables for PID control loop
+static float dt = 0.01f;
 static float prev_roll_error = 0.0f;
 static float prev_pitch_error = 0.0f;
 static float roll_integral = 0.0f;
 static float pitch_integral = 0.0f;
+static float roll_rate;
+static float pitch_rate;
+
+// function to keep values within a certain range
 
 static float clamp(float value, float min, float max)
 {
-    if (val < min)
+    if (value < min)
     {
         return min;
     }
-    if (val > max)
+    if (value > max)
     {
         return max;
     }
@@ -179,19 +194,15 @@ static void gpio_interrupt_handler(uint gpio, uint32_t event_mask)
             gyro[1] -= gryo_error[1];
             gyro[2] -= gryo_error[2];
 
+            // going to use rated control for PID, its more common
+            roll_rate = (float)gyro[0] / 131.0f;
+            pitch_rate = (float)gyro[1] / 131.0f;
+
             // convert raw measurements into deg/s and update absolute orientation
             t += 1 / 1000.0f;
             x += gyro[0] / 131000.0f;
             y += gyro[1] / 131000.0f;
             z += gyro[2] / 131000.0f;
-
-            // print current orientation every 100ms
-            static int count;
-            if (++count > 100)
-            {
-                printf("%7.3fs %8.3fdeg %8.3fdeg %8.3fdeg\n", t, x, y, z);
-                count = 0;
-            }
         }
     }
 }
@@ -202,7 +213,7 @@ void pwmSetUp(void)
     // each pin controls a mosfet that allows the motor to spin based on our duty cycle
     // wrap is the number we want to count up to, default sys clck is 150Mhz, 150Mhz info -
     // info is from 8.1.2.1 in the Raspberry Pi Pico RP2350 Datasheet, link above
-    uint32_t wrap = ((150000000 / PWM_FREQ) - 1);
+    pwm_wrap = ((150000000 / PWM_FREQ) - 1);
 
     // each slice has a pair of pins that will have the same freq
     // grabbing slice numbers for each pin
@@ -225,16 +236,64 @@ void pwmSetUp(void)
 
     // wrap -> highest number the counter will go up to before returning back down to 0
     // info from hardware api - link above
-    pwm_set_wrap(slice_pin0, wrap);
-    pwm_set_wrap(slice_pin1, wrap);
-    pwm_set_wrap(slice_pin2, wrap);
-    pwm_set_wrap(slice_pin3, wrap);
+    pwm_set_wrap(slice_pin0, pwm_wrap);
+    pwm_set_wrap(slice_pin1, pwm_wrap);
+    pwm_set_wrap(slice_pin2, pwm_wrap);
+    pwm_set_wrap(slice_pin3, pwm_wrap);
 
     // enabling all the pins
     pwm_set_enabled(slice_pin0, true);
     pwm_set_enabled(slice_pin1, true);
     pwm_set_enabled(slice_pin2, true);
     pwm_set_enabled(slice_pin3, true);
+}
+
+static void pid_control(void)
+{
+    // all PID code is similar from video from ECE 3610 and ECE 5780
+    // both classes had sections on PID
+    // error portion of PID
+    float roll_error = ROLL_SETPOINT - roll_rate;
+    float pitch_error = PITCH_SETPOINT - pitch_rate;
+
+    // intergral portion of PID
+    roll_integral += roll_error * dt;
+    pitch_integral += pitch_error * dt;
+
+    // derivative portion of PID
+    float roll_deriv = (roll_error - prev_roll_error) / dt;
+    float pitch_deriv = (pitch_error - prev_pitch_error) / dt;
+
+    // PID formula
+    float roll_control = (Kp * roll_error) + (Ki * roll_integral) + (Kd * roll_deriv);
+    float pitch_control = (Kp * pitch_error) + (Ki * pitch_integral) + (Kd * pitch_deriv);
+
+    // saving previous errors for both pitch and roll
+    prev_roll_error = roll_error;
+    prev_pitch_error = pitch_error;
+
+    // base speed for motors, and minimum speed for motors
+    float base_duty_cycle = pwm_wrap;        // base speed for the motors
+    float min_duty_cycle = 0.90f * pwm_wrap; // min speed for the motors
+
+    // math from quadcopter PID video
+    float motor_1 = base_duty_cycle + roll_control + pitch_control;
+    float motor_2 = base_duty_cycle - roll_control + pitch_control;
+    float motor_3 = base_duty_cycle - roll_control - pitch_control;
+    float motor_4 = base_duty_cycle + roll_control - pitch_control;
+
+    // clamping values
+    // motors arent very strong, so we need a higher duty cycle to get them spinning fast enough to make the quadcopter float
+    motor_1 = clamp(motor_1, min_duty_cycle, pwm_wrap);
+    motor_2 = clamp(motor_2, min_duty_cycle, pwm_wrap);
+    motor_3 = clamp(motor_3, min_duty_cycle, pwm_wrap);
+    motor_4 = clamp(motor_4, min_duty_cycle, pwm_wrap);
+
+    // setting pwm levels
+    pwm_set_chan_level(pwm_gpio_to_slice_num(MOTOR_FRONT_LEFT), pwm_gpio_to_channel(MOTOR_FRONT_LEFT), motor_1);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(MOTOR_FRONT_RIGHT), pwm_gpio_to_channel(MOTOR_FRONT_RIGHT), motor_2);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(MOTOR_BACK_RIGHT), pwm_gpio_to_channel(MOTOR_BACK_RIGHT), motor_3);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(MOTOR_BACK_LEFT), pwm_gpio_to_channel(MOTOR_BACK_LEFT), motor_4);
 }
 
 int main()
@@ -273,29 +332,43 @@ int main()
 
     pwmSetUp(); // setting up all pwm signals
 
-    while (true)
-    {
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through motor cycle
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off, meaning all motors have been ran
-        sleep_ms(1000);
-    }
-}
+    // starting with 0 speed on all motors
+    pwm_set_chan_level(pwm_gpio_to_slice_num(PWM_PIN0), pwm_gpio_to_channel(PWM_PIN0), 0);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(PWM_PIN1), pwm_gpio_to_channel(PWM_PIN1), 0);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(PWM_PIN2), pwm_gpio_to_channel(PWM_PIN2), 0);
+    pwm_set_chan_level(pwm_gpio_to_slice_num(PWM_PIN3), pwm_gpio_to_channel(PWM_PIN3), 0);
 
-void battery_voltage_reading()
-{
     // initialize adc hardware
     adc_init();
 
     // set gpio 26 as adc input (adc0)
     adc_gpio_init(VOLTAGE_INPUT_PIN);
-    adc_select_input(2); // adc channel 2 = gpio 28
 
-    // read raw 12-bit adc value (0 to 4095)
-    uint16_t raw = adc_read();
+    int counter = 0; // counter for displaying values in serial monitor
 
-    // convert to actual voltage (0.0 to 3.3v)
-    float voltage = (raw * 3.3f) / 4095.0f;
-    float actual_bat_voltage = voltage * BAT_RATIO_VOLT_DIV;
+    while (true)
+    {
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1); // turning LED on, start of going through motor cycle
+        pid_control();
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0); // turning LED off, meaning all motors have been ran
+        sleep_ms(1);
 
-    printf("Current Battery Voltage: %.3f V\n", actual_bat_voltage);
+        if (counter >= 1000)
+        {
+            adc_select_input(2); // adc channel 2 = gpio 28
+
+            // read raw 12-bit adc value (0 to 4095)
+            uint16_t raw = adc_read();
+
+            // convert to actual voltage (0.0 to 3.3v)
+            float voltage = (raw * 3.3f) / 4095.0f;
+            float actual_bat_voltage = voltage * BAT_RATIO_VOLT_DIV;
+            // printing roll,pitch rates and current battery voltage
+            printf("Roll Rate:  %.2f °/s, Pitch Rate: %.2f °/s, Battery Voltage: %.2f V\n",
+                   roll_rate, pitch_rate, actual_bat_voltage);
+
+            counter = 0;
+        }
+        counter++;
+    }
 }
