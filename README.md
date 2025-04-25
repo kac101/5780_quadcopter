@@ -38,7 +38,3 @@ A fully realized quadcopter platform built around a Raspberry Pi Pico 2W, powere
 - Implemented ADC-based battery monitoring (accounted for resolution/noise)  
 - Conducted full system flight test → **Stable, controlled hover and maneuvers achieved**
 
----
-
-## 🎉 Acknowledgments
-Thanks to the ECE 5780 teaching staff and the University of Utah cleanroom team for their support and resources.
