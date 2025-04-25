@@ -16,10 +16,10 @@
         5. MPU-6000 and MPU-6050 Register Map and Descriptions - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
 */
 
-#define I2C i2c0 // i2c instance
+#define I2C i2c1 // i2c instance
 #define I2C_FREQ (400 * 1000)
-#define I2C_SDA 4 // i2c sda pin
-#define I2C_SCL 5 // i2c scl pin
+#define I2C_SDA 26 // i2c sda pin
+#define I2C_SCL 27 // i2c scl pin
 
 #define MPU6050_INT 6   // mpu6050 interrupt pin
 #define MPU6050_I2C I2C // mpu6050 i2c instance
