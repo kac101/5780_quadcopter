@@ -42,10 +42,10 @@
 
 // pico has 24 pwm channels -> datasheet pg. 4
 // using pins 0 - 3 to control the mosfets
-#define PWM_PIN0 0      // this corresponds to motor 1, front left
-#define PWM_PIN1 1      // this corresponds to motor 2, front right
-#define PWM_PIN2 2      // this corresponds to motor 3, back right
-#define PWM_PIN3 3      // this corresponds to motor 4, back left
+#define PWM_PIN0 6      // this corresponds to motor 1, front left
+#define PWM_PIN1 7      // this corresponds to motor 2, front right
+#define PWM_PIN2 8      // this corresponds to motor 3, back right
+#define PWM_PIN3 9      // this corresponds to motor 4, back left
 #define PWM_FREQ 480000 // 48KHz for drone motors
 
 static int calibration_count;
@@ -261,7 +261,7 @@ void battery_voltage_reading()
 
     // set gpio 26 as adc input (adc0)
     adc_gpio_init(VOLTAGE_INPUT_PIN);
-    adc_select_input(0); // adc channel 0 = gpio 26
+    adc_select_input(2); // adc channel 2 = gpio 28
 
     // read raw 12-bit adc value (0 to 4095)
     uint16_t raw = adc_read();
