@@ -48,6 +48,10 @@
 #define PWM_PIN3 9      // this corresponds to motor 4, back left
 #define PWM_FREQ 480000 // 48KHz for drone motors
 
+// these are the desired orentation we want the drone, we want no pitch and no roll, just want it to hover
+#define ROLL_SETPOINT 0.0f
+#define PITCH_SETPOINT 0.0f
+
 static int calibration_count;
 static int ready;
 static int32_t gyro_calibration_sum[3];
@@ -57,6 +61,16 @@ static float t;
 static float x; // roll
 static float y; // pitch
 static float z; // yaw
+
+// values to adjust for PID control
+volatile float Kp = 0.0f;
+volatile float Ki = 0.0f;
+volatile float Kd = 0.0f;
+
+static float prev_roll_error = 0.0f;
+static float prev_pitch_error = 0.0f;
+static float roll_integral = 0.0f;
+static float pitch_integral = 0.0f;
 
 static void mpu6050_write(uint8_t reg, uint8_t data)
 {
