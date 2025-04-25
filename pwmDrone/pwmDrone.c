@@ -270,5 +270,5 @@ void battery_voltage_reading()
     float voltage = (raw * 3.3f) / 4095.0f;
     float actual_bat_voltage = voltage * BAT_RATIO_VOLT_DIV;
 
-    printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", actual_bat_voltage);
+    printf("Current Battery Voltage: %.3f V\n", actual_bat_voltage);
 }
