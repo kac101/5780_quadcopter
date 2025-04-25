@@ -21,7 +21,7 @@
 #define I2C_SDA 26 // i2c sda pin
 #define I2C_SCL 27 // i2c scl pin
 
-#define MPU6050_INT 6   // mpu6050 interrupt pin
+#define MPU6050_INT 22  // mpu6050 interrupt pin
 #define MPU6050_I2C I2C // mpu6050 i2c instance
 #define MPU6050 0x68    // mpu6050 i2c address
 // mpu6050 registers, see the datasheet for a complete list
