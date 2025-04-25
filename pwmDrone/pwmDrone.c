@@ -242,19 +242,6 @@ int main()
     mpu6050_enable_interrupts();
     start_calibration();
 
-    // temporary loop for testing
-    // the gyro measurements are read and printed inside of the interrupt
-    /*
-    while (true)
-    {
-        if (getchar() == 'c')
-        {
-            start_calibration();
-        }
-
-        sleep_ms(100);
-    } */
-
     pwmSetUp(); // setting up all pwm signals
 
     while (true)
