@@ -33,8 +33,10 @@
 #define MPU6050_REG_PWR_MGMT_1 0x6b
 #define MPU6050_REG_PWR_MGMT_2 0x6c
 
-#define VOLTAGE_INPUT_PIN 26 // GPIO 26 for ADC0
-#define VOLTAGE_OUTPUT_PIN 5 // GPIO 5 for digital output
+#define VOLTAGE_INPUT_PIN 28                                        // GPIO 26 for ADC0
+#define RESISTOR_1 1000000                                          // 1M resistor
+#define RESISTOR_2 1000000                                          // 1M resistor
+#define BAT_RATIO_VOLT_DIV (RESISTOR_1 + RESISTOR_2) / (RESISTOR_2) // reading from above resistor 2
 
 #define CALIBRATION_SAMPLES 1000 // number of samples to average for calibration
 
@@ -261,14 +263,11 @@ void power()
     adc_gpio_init(VOLTAGE_INPUT_PIN);
     adc_select_input(0); // adc channel 0 = gpio 26
 
-    // set gpio 5 as digital output
-    gpio_init(VOLTAGE_OUTPUT_PIN);
-    gpio_set_dir(VOLTAGE_OUTPUT_PIN, GPIO_OUT);
-
     // read raw 12-bit adc value (0 to 4095)
     uint16_t raw = adc_read();
 
     // convert to actual voltage (0.0 to 3.3v)
     float voltage = (raw * 3.3f) / 4095.0f;
+
     printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", voltage);
 }
