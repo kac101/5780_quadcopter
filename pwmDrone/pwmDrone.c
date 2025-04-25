@@ -254,7 +254,7 @@ int main()
     }
 }
 
-void power()
+void battery_voltage_reading()
 {
     // initialize adc hardware
     adc_init();
