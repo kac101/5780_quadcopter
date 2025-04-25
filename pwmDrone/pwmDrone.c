@@ -271,14 +271,4 @@ void power()
     // convert to actual voltage (0.0 to 3.3v)
     float voltage = (raw * 3.3f) / 4095.0f;
     printf("Measured voltage: %.3f V (scaled x2 due to voltage divider)\n", voltage);
-
-    // if voltage is higher than 0.05v, turn gpio 5 on
-    if (voltage >= 0.05f)
-    {
-        gpio_put(VOLTAGE_OUTPUT_PIN, 1); // output high (3.3v)
-    }
-    else
-    {
-        gpio_put(VOLTAGE_OUTPUT_PIN, 0); // output low (0v)
-    }
 }
