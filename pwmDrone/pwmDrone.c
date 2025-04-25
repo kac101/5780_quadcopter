@@ -71,7 +71,7 @@ static float y; // pitch
 static float z; // yaw
 
 // values to adjust for PID control
-volatile float Kp = 1.40f;
+volatile float Kp = 1.20f;
 volatile float Ki = 0.005f;
 volatile float Kd = 0.00f;
 
