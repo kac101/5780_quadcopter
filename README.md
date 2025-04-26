@@ -148,10 +148,10 @@ Figure 6. 3D rendering of drone frame made in Fusion 360
 </p>
 
 <p align="center">
-<img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="500"/>
+<img src="videos_images/IMG_0173.jpg" alt="Drone Assembled" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 7. Image of the fully completed drone
+Figure 7. Image of the fully completed drone 
 </p>
 
 **Motor Spin Direction and Wiring Colors:**
