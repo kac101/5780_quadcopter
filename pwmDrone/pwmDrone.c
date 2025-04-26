@@ -14,7 +14,7 @@
         3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html
         4. MPU-6000 and MPU-6050 Product Specification - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
         5. MPU-6000 and MPU-6050 Register Map and Descriptions - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
-        6. https://www.youtube.com/watch?v=GK1t8YIvGM8&t=1s
+        6.  Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover? - https://www.youtube.com/watch?v=GK1t8YIvGM8&t=1s
 */
 
 #define I2C i2c1 // i2c instance
