@@ -1,9 +1,9 @@
 <h1 align="center">ECE 5780 - Quadcopter</h1>
 
 
-<p align="center">
+<p>
 Quadcopter Team Members:
-<ul align="center" style="list-style-position: inside;">
+<ul style="list-style-position: inside;">
   <li>Rudis Argueta</li>
   <li>Donggeon Kim </li>
   <li>Taehoon Kim</li>
