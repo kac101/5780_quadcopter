@@ -12,7 +12,7 @@ Quadcopter Team Members:
 </p>
 
 <p align="center">
-  <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="500"/>
+  <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="600"/>
 </p>
 <p align="center" style="font-size:11px;">
 Figure 1. GIF Of The Drone Hovering
