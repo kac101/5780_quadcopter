@@ -12,7 +12,7 @@ Quadcopter Team Members:
 </p>
 
 <p align="center">
-  <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="400"/>
+  <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="600"/>
 </p>
 <p align="center" style="font-size:11px;">
 Figure 1. GIF Of The Drone Hovering
@@ -23,10 +23,8 @@ Figure 1. GIF Of The Drone Hovering
 ## Project Summary
 A quadcopter that can only hover made using the Raspberry Pi Pico 2 W, a motor driver, BetaFPV motors, and a MPU6050. 
 
-- **Stabilization:** MPU6050 IMU via I²C at 1 kHz (interrupt-driven, offset-calibrated)  
-- **Control:** PID controller that corrects roll and pitch and attempts to keep the quadcopter at 0° roll and pitch
-- **Monitoring:** Raspberry Pi Pico 2W on-board ADC for battery-voltage readings (via 1 MΩ / 1 MΩ divider)  
-- **Telemetry:** USB serial prints roll & pitch rates plus battery voltage every second  
+**How It Works:**
+To create a quadcopter using the Raspberry Pi Pico 2W we had to create a motor driver that will power the motors by using a battery, and the PWM signals coming from the Raspberry Pi Pico 2W. The PWM signals control the speed of the motors, and to do this we used a MOSFET that has a low threshold voltage because the max voltage the Pico's PWM will be is 3.3V. Additionally, we used a MPU6050 to grab x,y,x information, and with this information we created a PID loop that will attempt to keep the quadcopter at a 0° roll, and pitch rate. Additionally, the frame and drone was assembled by us. 
 
 ---
 
@@ -91,6 +89,12 @@ Figure 3. USB Serial Output of Roll Rate, Pitch Rate, and Current Battery Voltag
 ### How Everything is Wired:
 
 The following is how everything is wired together and Figure 4. shows the pinout diagram for the Raspberry Pi Pico 2 W.
+<p align="center" >
+<img src="videos_images/Pico2W_pin_layout.png" alt="Drone Frame" width="500"/>
+</p>
+<p align="center" style="font-size:11px;">
+Figure 4. 3D rendering of drone frame made in Fusion 360
+</p>
 
 
 
@@ -127,14 +131,14 @@ Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry P
 
 
 <p align="center" >
-<img src="videos_images/drone_frame_jpg.png" alt="Drone Frame" width="400"/>
+<img src="videos_images/drone_frame_jpg.png" alt="Drone Frame" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
 Figure 4. 3D rendering of drone frame made in Fusion 360
 </p>
 
 <p align="center">
-<img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="400"/>
+<img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
 Figure 5. Image of the fully completed drone
