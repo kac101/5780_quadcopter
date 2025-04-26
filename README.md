@@ -54,14 +54,22 @@ To create a quadcopter using the Raspberry Pi Pico 2W we had to create a motor d
 - Proto-PCB built to verify MOSFET motor-driver circuit  
 - Final PCB layout completed (Pico, MOSFETs, IMU)  
 - Component selection and documentation finalized
+
+
 <p align="center">
-<img src="videos_images/QuadCopter_Motor_Layout_IMG.png" alt="Motor Driver Layout" width="400"/>
+<img src="videos_images/Quadcopter_Motor_Sch_IMG.png" alt="Motor Driver Schematic" width="600"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 2. Final PCB Layout of our Motor Driver that will control the drone Motors
+Figure 2. Schematic Diagram of the Motor Driver Circuit
+</p>
+
+<p align="center">
+<img src="videos_images/QuadCopter_Motor_Layout_IMG.png" alt="Motor Driver Layout" width="600"/>
+</p>
+<p align="center" style="font-size:11px;">
+Figure 3. Final PCB Layout of our Motor Driver that will control the drone Motors
 </p>  
 
-Motor Driver Layout
 
 ### Milestone 2  
 - Assembled & tested PCB + 3D-printed frame  
@@ -73,10 +81,10 @@ Motor Driver Layout
 - ADC-based battery monitoring  
 - Full system flight test
 <p align="center">
-<img src="videos_images/Serial_OUTPUT.png" alt="Serial Output Example" width="400"/>
+<img src="videos_images/Serial_OUTPUT.png" alt="Serial Output Example" width="700"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 3. USB Serial Output of Roll Rate, Pitch Rate, and Current Battery Voltage.
+Figure 4. USB Serial Output of Roll Rate, Pitch Rate, and Current Battery Voltage.
 </p>  
 
 ### Milestone 4
@@ -95,7 +103,7 @@ The following is how everything is wired together and Figure 4. shows the pinout
 <img src="videos_images/Pico2W_pin_layout.png" alt="Drone Frame" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 4. 3D rendering of drone frame made in Fusion 360
+Figure 5. 3D rendering of drone frame made in Fusion 360
 </p>
 
 
@@ -128,7 +136,7 @@ Figure 4. 3D rendering of drone frame made in Fusion 360
 
 ### Frame & How It Was Made
 
-Figure 4. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
+Figure 5. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
 Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry Pi Pico and motor driver, a wood plate was added to prevent short. Lastly, the battery was placed at the bottom bed of the drone and zipped tied. All components were wrapped around by kapton tape to be secured and prevent any shorts when testing/flying.
 
 
@@ -136,32 +144,38 @@ Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry P
 <img src="videos_images/drone_frame_jpg.png" alt="Drone Frame" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 4. 3D rendering of drone frame made in Fusion 360
+Figure 6. 3D rendering of drone frame made in Fusion 360
 </p>
 
 <p align="center">
 <img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 5. Image of the fully completed drone
+Figure 7. Image of the fully completed drone
 </p>
 
+**Motor Spin Direction and Wiring Colors:**
+- **Clockwise (CW)**: Motors with **Red and Blue** wires (top left and bottom right)
+- **Counterclockwise (CCW)**: Motors with **White and Black** wires (top right and bottom left)
 
 
 
 ### Component List:
+Main:
+- 1x Raspberry Pi Pico 2W 
+- 1x HiLetGo MPU6050
+- 1x Voltage Divider (made with proto board and through-hole resistors)
+- 1x Motor Driver (custom motor driver schematic can be found in the schematic folder above)
+- 4x BetaFPV Brushed Motors
+- 1x Drone Frame (made by us)
 
-1x Raspberry Pi Pico 2W 
-
-1x HiLetGo MPU6050
-
-1x Voltage Divider (made with proto board, and through hole resistors)
-
-1x Motor Driver (custom motor driver schematic can be found in the schematic folder above)
-
-4x BetaFPV Brushed Motors
-
-1x Drone Frame (made by us)
+Supporting Components:
+- 10kΩ Resistor – 0805W8F1002T5E
+- 5A Diode – SS54B
+- 0.1µF Capacitor – CL05B104KO5NNNC
+- MOSFET – AO3400A
+- 1µF Capacitor – ESL105M100AC3AA
+- JST 2.0 Connector
 
 ## Software Details
 
