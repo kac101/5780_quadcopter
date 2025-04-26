@@ -17,9 +17,6 @@ Quadcopter Team Members:
 <p align="center" style="font-size:11px;">
 Figure 1. GIF Of The Drone hovering
 </p>  
-=======
-**Quadcopter**
->>>>>>> 48ed8857cd8be6a78dda216b2e27829e6f72c9f4
 
 ---
 
