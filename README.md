@@ -6,7 +6,7 @@
 
 <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="400"/>
 
-**Quadcpter**
+**Quadcopter**
 
 ---
 
