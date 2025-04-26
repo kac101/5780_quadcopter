@@ -26,7 +26,7 @@ Figure 1. GIF Of The Drone Hovering
 A quadcopter that can only hover made using the Raspberry Pi Pico 2 W, a motor driver, BetaFPV motors, and a MPU6050. 
 
 **How It Works:**
-To create a quadcopter using the Raspberry Pi Pico 2W we had to create a motor driver that will power the motors by using a battery, and the PWM signals coming from the Raspberry Pi Pico 2W. The PWM signals control the speed of the motors, and to do this we used a MOSFET that has a low threshold voltage because the max voltage the Pico's PWM will be is 3.3V. Additionally, we used a MPU6050 to grab x,y,x information, and with this information we created a PID loop that will attempt to keep the quadcopter at a 0° roll, and pitch rate. Additionally, the frame and drone was assembled by us. 
+To create a quadcopter using the Raspberry Pi Pico 2W we had to create a motor driver that will power the motors by using a battery, and the PWM signals coming from the Raspberry Pi Pico 2W. The PWM signals control the speed of the motors, and to do this we used a MOSFET that has a low threshold voltage because the max voltage the Pico's PWM will be is 3.3V. Additionally, we used a MPU6050 to grab x, and y information, and with this information we created a PID loop that will attempt to keep the quadcopter at a 0° roll, and pitch rate. Additionally, the frame and drone was assembled by us. 
 
 ---
 
