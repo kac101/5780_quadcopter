@@ -155,8 +155,8 @@ Figure 7. Image of the fully completed drone
 </p>
 
 **Motor Spin Direction and Wiring Colors:**
-- **Clockwise (CW)**: Motors with **Red and Blue** wires (top left and bottom right)
-- **Counterclockwise (CCW)**: Motors with **White and Black** wires (top right and bottom left)
+- **Clockwise (CW)**: Motors with **Red and Blue** wires (top right and bottom left)
+- **Counterclockwise (CCW)**: Motors with **White and Black** wires (top left and bottom right)
 
 
 
