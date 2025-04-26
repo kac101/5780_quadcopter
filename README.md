@@ -11,6 +11,7 @@ Quadcopter Team Members:
 </ul>
 </p>
 
+<<<<<<< HEAD
 
 <p align="center">
   <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="400"/>
@@ -18,6 +19,9 @@ Quadcopter Team Members:
 <p align="center" style="font-size:11px;">
 Figure 1. GIF Of The Drone hovering
 </p>  
+=======
+**Quadcopter**
+>>>>>>> 48ed8857cd8be6a78dda216b2e27829e6f72c9f4
 
 ---
 
