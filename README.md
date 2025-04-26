@@ -98,12 +98,12 @@ Figure 4. USB Serial Output of Roll Rate, Pitch Rate, and Current Battery Voltag
 
 ### How Everything is Wired:
 
-The following is how everything is wired together and Figure 4. shows the pinout diagram for the Raspberry Pi Pico 2 W.
+The following is how everything is wired together and Figure 5. shows the pinout diagram for the Raspberry Pi Pico 2W.
 <p align="center" >
 <img src="videos_images/Pico2W_pin_layout.png" alt="Drone Frame" width="500"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 5. 3D rendering of drone frame made in Fusion 360
+Figure 5. Raspberry Pi Pico 2W pinout.
 </p>
 
 
@@ -136,7 +136,7 @@ Figure 5. 3D rendering of drone frame made in Fusion 360
 
 ### Frame & How It Was Made
 
-Figure 5. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
+Figure 6. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
 Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry Pi Pico and motor driver, a wood plate was added to prevent short. Lastly, the battery was placed at the bottom bed of the drone and zipped tied. All components were wrapped around by kapton tape to be secured and prevent any shorts when testing/flying.
 
 
