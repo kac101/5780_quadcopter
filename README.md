@@ -3,6 +3,11 @@
 **Team:** Rudis Argueta, Donggeon Kim, Taehoon Kim, Luke Stillings  
 **Date:** April 25, 2025
 
+
+<img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="400"/>
+
+**Quadcpter**
+
 ---
 
 ## Project Summary
@@ -39,18 +44,90 @@ A fully realized quadcopter platform built around a Raspberry Pi Pico 2W, powere
 - Proto-PCB built to verify MOSFET motor-driver circuit  
 - Final PCB layout completed (Pico, MOSFETs, IMU)  
 - Component selection and documentation finalized  
+<img src="videos_images/QuadCopter_Motor_Layout_IMG.png" alt="Motor Driver Layout" width="400"/>
+Motor Driver Layout
 
 ### Milestone 2  
 - Assembled & bench-tested PCB + 3D-printed frame  
 - Verified PWM control (0 %→75 % duty) and MOSFET switching  
 - Eliminated a board-short by redesigning mount  
 
+
 ### Milestone 3  
 - I²C MPU6050 integration with drift calibration  
 - ADC-based battery monitoring (noise & resolution characterized)  
 - Full system flight test
+<img src="videos_images/Serial_OUTPUT.png" alt="Serial Output Example" width="400"/>
+Serial OUTPUT
+
+
+### Milestone 4
+- Demonstation
+[Click here to see full demo video](videos_images/IMG_0630.MOV)
 
 ---
+
+
+## Hardware Details
+
+### Wiring
+
+Connect the wire based on following information
+
+MPU 6050 has a 3.3V regulator, so we connected it to VBUS
+
+#### MPU 6050   -> Pico 
+         VCC ->         VBUS
+         SDA ->         I2C1 SCL
+         SCL ->         I2C1 SDA
+         GND ->         GND
+         INT ->         GP22
+
+#### PWM- Pico  -> Motor Drive
+            GP6 -> Motor Drive Motor 1 
+            GP7 -> Motor Drive Motor 2
+            GP8 -> Motor Drive Motor 3   
+            GP9 -> Motor Drive Motor 4
+            GND -> GND
+
+#### Voltage Divider -> Motor Driver
+                 VCC ->              PWR
+                 GND ->              GND
+      Divider output ->             GP28
+
+<img src="videos_images/Pico2W_pin_layout.png" alt="Pi Pico2W Pin" width="400"/>
+
+
+
+### Frame & how to make
+
+The motor holder parts were removed to reduce the weight, and motors were super glued to the frame. 
+Also, gyro MPU 6050 was glued to the frame. Between Pi Pico and motor driver, a wood plate was added to prevent short.
+Battery was placed at the bottom bed of this drone and cable tied. All components were wrapped around by tape to be secured.
+
+<img src="videos_images/drone_frame_jpg.png" alt="Drone Frame" width="400"/>
+
+**Drone Frame from Fusion 360**
+
+<br>
+
+<img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="400"/>
+
+**Drone Image**
+
+### Component
+
+1x Pi Pico 2W (commerical)
+
+1x MPU6050 (commerical)
+
+1x Voltage Divider (we made it)
+
+1x Motor Driver (we made it)
+
+4x Brush Motor (commerical)
+
+1x Drone Frame (we made it)
 
 ## Software Details
 
