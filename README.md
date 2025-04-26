@@ -11,6 +11,8 @@ Quadcopter Team Members:
 </ul>
 </p>
 
+___
+
 <p align="center">
   <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="600"/>
 </p>
