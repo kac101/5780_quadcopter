@@ -14,7 +14,7 @@
         3. Hardware API - https://www.raspberrypi.com/documentation/pico-sdk/hardware.html
         4. MPU-6000 and MPU-6050 Product Specification - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
         5. MPU-6000 and MPU-6050 Register Map and Descriptions - https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
-        6.  Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover? - https://www.youtube.com/watch?v=GK1t8YIvGM8&t=1s
+        6. Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover? - https://www.youtube.com/watch?v=GK1t8YIvGM8&t=1s
 */
 
 #define I2C i2c1 // i2c instance
@@ -34,9 +34,10 @@
 #define MPU6050_REG_PWR_MGMT_1 0x6b
 #define MPU6050_REG_PWR_MGMT_2 0x6c
 
-#define VOLTAGE_INPUT_PIN 28                                        // GPIO 26 for ADC0
-#define RESISTOR_1 1000000                                          // 1M resistor
-#define RESISTOR_2 1000000                                          // 1M resistor
+#define VOLTAGE_INPUT_PIN 28 // GPIO 26 for ADC0
+#define RESISTOR_1 1000000   // 1M resistor
+#define RESISTOR_2 1000000   // 1M resistor
+// math to convert the voltage at the divider, need to multiply this by the adc voltage gotten to get approx battery voltage
 #define BAT_RATIO_VOLT_DIV (RESISTOR_1 + RESISTOR_2) / (RESISTOR_2) // reading from above resistor 2
 
 #define CALIBRATION_SAMPLES 1000 // number of samples to average for calibration
@@ -71,6 +72,7 @@ static float y; // pitch
 static float z; // yaw
 
 // values to adjust for PID control
+// these kp,ki,kd are for both pitch and roll
 volatile float Kp = 1.20f;
 volatile float Ki = 0.005f;
 volatile float Kd = 0.00f;
@@ -87,7 +89,6 @@ static float roll_rate;
 static float pitch_rate;
 
 // function to keep values within a certain range
-
 static float clamp(float value, float min, float max)
 {
     if (value < min)
@@ -251,7 +252,8 @@ void pwmSetUp(void)
 
 static void pid_control(void)
 {
-    // all PID code is similar from video from ECE 3610: MATLAB Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover?
+    // PID code is similar from video from ECE 3610: MATLAB Drone Simulation and Control, Part 2: How Do You Get a Drone to Hover?
+    // and the PID videos from LAB 7
     // both classes had sections on PID
     // error portion of PID
     float roll_error = ROLL_SETPOINT - roll_rate;
@@ -278,6 +280,7 @@ static void pid_control(void)
     float min_duty_cycle = 0.90f * pwm_wrap; // min speed for the motors
 
     // math from quadcopter PID video
+    // excluded z, currently dont need to keep yaw at zero
     float motor_1 = base_duty_cycle + roll_control + pitch_control;
     float motor_2 = base_duty_cycle - roll_control + pitch_control;
     float motor_3 = base_duty_cycle - roll_control - pitch_control;
@@ -342,7 +345,7 @@ int main()
     // initialize adc hardware
     adc_init();
 
-    // set gpio 26 as adc input (adc0)
+    // set gpio 28 as adc input (adc2)
     adc_gpio_init(VOLTAGE_INPUT_PIN);
 
     int counter = 0; // counter for displaying values in serial monitor
