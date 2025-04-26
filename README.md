@@ -15,13 +15,13 @@ Quadcopter Team Members:
   <img src="videos_images/IMG_0630.gif" alt="Drone Demo" width="400"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 1. GIF Of The Drone hovering
+Figure 1. GIF Of The Drone Hovering
 </p>  
 
 ---
 
 ## Project Summary
-A quadcopter that can only hover made using the Raspberry Pi Pico 2 W, a motor driver, betafpv motors, and a MPU6050. 
+A quadcopter that can only hover made using the Raspberry Pi Pico 2 W, a motor driver, BetaFPV motors, and a MPU6050. 
 
 - **Stabilization:** MPU6050 IMU via I²C at 1 kHz (interrupt-driven, offset-calibrated)  
 - **Control:** PID controller that corrects roll and pitch and attempts to keep the quadcopter at 0° roll and pitch
@@ -102,7 +102,7 @@ The following is how everything is wired together and Figure 4. shows the pinout
          INT -> GP22
      
 
-#### Raspberry Pi Pico 2W connectiosn to Motor Driver PCB
+#### Raspberry Pi Pico 2W connections to Motor Driver PCB
          GP6 -> Motor Drive Motor 1 
          GP7 -> Motor Drive Motor 2
          GP8 -> Motor Drive Motor 3   
@@ -122,7 +122,7 @@ The following is how everything is wired together and Figure 4. shows the pinout
 
 ### Frame & How It Was Made
 
-Figure 5. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
+Figure 4. showcases the first iteration of our drone frame. The second iteration of our frame had the motor holders removed to reduce the weight, and motors were super glued to the frame. 
 Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry Pi Pico and motor driver, a wood plate was added to prevent short. Lastly, the battery was placed at the bottom bed of the drone and zipped tied. All components were wrapped around by kapton tape to be secured and prevent any shorts when testing/flying.
 
 
@@ -130,14 +130,14 @@ Also, the HiLetGo MPU6050 was glued to the frame aswell. Between the Raspberry P
 <img src="videos_images/drone_frame_jpg.png" alt="Drone Frame" width="400"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 5. 3D rendering of drone frame made in Fusion 360
+Figure 4. 3D rendering of drone frame made in Fusion 360
 </p>
 
 <p align="center">
 <img src="videos_images/Drone_image.jpg" alt="Drone Assembled" width="400"/>
 </p>
 <p align="center" style="font-size:11px;">
-Figure 6. Image of the fully completed drone
+Figure 5. Image of the fully completed drone
 </p>
 
 
